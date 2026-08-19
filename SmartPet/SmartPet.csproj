@@ -1,0 +1,62 @@
+<!--
+  SmartPet — AI assistant code plugin for VPet (virtual desktop pet).
+
+  English-only plugin. Loaded automatically by VPet's mod system as a
+  code plugin DLL. All settings, dialogue and documentation are in English.
+
+  Architecture note:
+  - This plugin never modifies the VPet core. Everything lives here,
+    so you can edit, rebuild and redeploy just this DLL.
+  - The pet's visuals go through IPetRenderer: the current 2D PNG sprite
+    pipeline is wrapped by Sprite2DRenderer. A 3D model pipeline can be
+    plugged in later by implementing IModel3DRenderer without touching
+    this plugin's logic.
+-->
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <OutputType>Library</OutputType>
+    <RootNamespace>VPet.SmartPet</RootNamespace>
+    <AssemblyName>SmartPet</AssemblyName>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <UseWPF>true</UseWPF>
+    <EnableWindowsTargeting>true</EnableWindowsTargeting>
+    <NoWarn>$(NoWarn);CS0619</NoWarn>
+    <Platforms>x64</Platforms>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- VPet core projects — the plugin builds against the source projects
+         for tight coupling; on a real deployment the game ships its own
+         DLLs, and this plugin DLL drops into the mod folder alongside. -->
+    <ProjectReference Include="..\VPet-Simulator.Core\VPet-Simulator.Core.csproj" />
+    <ProjectReference Include="..\VPet-Simulator.Windows\VPet-Simulator.Windows.csproj" />
+    <ProjectReference Include="..\VPet-Simulator.Windows.Interface\VPet-Simulator.Windows.Interface.csproj" />
+
+    <!-- Windows speech recognition + synthesis (offline, no API cost) -->
+    <PackageReference Include="System.Speech" Version="9.0.4" />
+
+    <!-- Gemini AI (Google.GenerativeAI), used only when a query is not a
+         local command — offline commands cost nothing -->
+    <PackageReference Include="Google_GenerativeAI" Version="0.16.0" />
+
+    <!-- 3D model support (optional render path, ready for a future 3D pet) -->
+    <PackageReference Include="SharpGLTF.Runtime" Version="1.0.3" />
+    <PackageReference Include="SharpGLTF.Toolkit" Version="1.0.3" />
+  </ItemGroup>
+
+  <!--
+    After a successful build, copy the DLL into the mod folder so VPet
+    can load it on next start.
+  -->
+  <Target Name="CopyToModFolder" AfterTargets="Build" Condition="'$(Configuration)' == 'Release'">
+    <Copy SourceFiles="$(OutputPath)SmartPet.dll"
+          DestinationFolder="$(MSBuildProjectDirectory)\..\VPet-Simulator.Windows\mod\1000_smartpet\"
+          SkipUnchangedFiles="true" />
+  </Target>
+
+</Project>

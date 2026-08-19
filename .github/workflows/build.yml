@@ -1,0 +1,44 @@
+# Build the full VPet + SmartPet solution on a cloud Windows runner.
+# Produces a ready-to-run ZIP (VPet with the SmartPet plugin installed).
+name: Build VPet + SmartPet
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Build solution (x64 Release)
+        run: dotnet build VPet.sln -c Release -p:Platform=x64
+
+      - name: Publish Windows app
+        run: |
+          dotnet publish "VPet-Simulator.Windows\VPet-Simulator.Windows.csproj" `
+            -c Release -r win-x64 --self-contained false `
+            -o publish
+
+      - name: Copy SmartPet plugin DLL into the mod folder
+        run: |
+          copy "SmartPet\bin\x64\Release\SmartPet.dll" `
+               "publish\mod\1000_smartpet\SmartPet.dll"
+
+      - name: Package release ZIP
+        run: |
+          Compress-Archive -Path publish\* -DestinationPath VPet-SmartPet-win-x64.zip
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: VPet-SmartPet-win-x64
+          path: VPet-SmartPet-win-x64.zip
