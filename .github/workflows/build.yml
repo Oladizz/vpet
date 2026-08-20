@@ -25,7 +25,7 @@ jobs:
       - name: Publish Windows app
         run: |
           dotnet publish "VPet-Simulator.Windows\VPet-Simulator.Windows.csproj" `
-            -c Release -r win-x64 --self-contained false `
+            -c Release -r win-x64 --self-contained false -p:Platform=x64 `
             -o publish
 
       - name: Copy SmartPet plugin DLL into the mod folder
