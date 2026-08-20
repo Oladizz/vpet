@@ -1,3 +1,5 @@
+# vpet
+this is a customized repo adding ai and knowledge of your system to enhance the virtual pet 
 # VPet-Simulator
 
 简体中文 | [繁體中文](./README_zht.md) | [English](./README_en.md) | [日本語](./README_ja.md)
