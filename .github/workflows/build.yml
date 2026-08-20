@@ -30,7 +30,7 @@ jobs:
 
       - name: Copy SmartPet plugin DLL into the mod folder
         run: |
-          copy "SmartPet\bin\x64\Release\SmartPet.dll" `
+          copy "SmartPet\bin\Release\SmartPet.dll" `
                "publish\mod\1000_smartpet\SmartPet.dll"
 
       - name: Package release ZIP
